@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Exercise the real TUI in a PTY without contacting publishers."""
+
 import codecs
 import fcntl
 import os
@@ -42,49 +43,74 @@ class Terminal:
                     if not match:
                         break
                     params, _, final = match.groups()
-                    args = [int(p or "0") for p in params.lstrip("?<>").split(";") if ":" not in p]
+                    args = [
+                        int(p or "0")
+                        for p in params.lstrip("?<>").split(";")
+                        if ":" not in p
+                    ]
                     n = args[0] if args and args[0] else 1
                     if final in "Hf":
                         self.y = min(self.height - 1, max(0, n - 1))
-                        self.x = min(self.width - 1, max(0, (args[1] if len(args) > 1 and args[1] else 1) - 1))
-                    elif final == "A": self.y = max(0, self.y - n)
-                    elif final == "B": self.y = min(self.height - 1, self.y + n)
-                    elif final == "C": self.x = min(self.width - 1, self.x + n)
-                    elif final == "D": self.x = max(0, self.x - n)
-                    elif final == "G": self.x = min(self.width - 1, n - 1)
-                    elif final == "d": self.y = min(self.height - 1, n - 1)
+                        self.x = min(
+                            self.width - 1,
+                            max(0, (args[1] if len(args) > 1 and args[1] else 1) - 1),
+                        )
+                    elif final == "A":
+                        self.y = max(0, self.y - n)
+                    elif final == "B":
+                        self.y = min(self.height - 1, self.y + n)
+                    elif final == "C":
+                        self.x = min(self.width - 1, self.x + n)
+                    elif final == "D":
+                        self.x = max(0, self.x - n)
+                    elif final == "G":
+                        self.x = min(self.width - 1, n - 1)
+                    elif final == "d":
+                        self.y = min(self.height - 1, n - 1)
                     elif final == "J":
                         value = args[0] if args else 0
-                        if value in (2, 3): self.cells = [[" "] * self.width for _ in range(self.height)]
+                        if value in (2, 3):
+                            self.cells = [
+                                [" "] * self.width for _ in range(self.height)
+                            ]
                         elif value == 0:
-                            self.cells[self.y][self.x:] = [" "] * (self.width - self.x)
-                            for row in range(self.y + 1, self.height): self.cells[row] = [" "] * self.width
+                            self.cells[self.y][self.x :] = [" "] * (self.width - self.x)
+                            for row in range(self.y + 1, self.height):
+                                self.cells[row] = [" "] * self.width
                     elif final == "K":
                         value = args[0] if args else 0
-                        if value == 2: self.cells[self.y] = [" "] * self.width
-                        elif value == 0: self.cells[self.y][self.x:] = [" "] * (self.width - self.x)
-                        elif value == 1: self.cells[self.y][:self.x + 1] = [" "] * (self.x + 1)
+                        if value == 2:
+                            self.cells[self.y] = [" "] * self.width
+                        elif value == 0:
+                            self.cells[self.y][self.x :] = [" "] * (self.width - self.x)
+                        elif value == 1:
+                            self.cells[self.y][: self.x + 1] = [" "] * (self.x + 1)
                     elif final == "h" and params == "?1049":
                         self.cells = [[" "] * self.width for _ in range(self.height)]
                         self.x = self.y = 0
                     i += len(match.group(0))
                     continue
                 if text[i + 1] in "]P":
-                    end = re.search(r"\x07|\x1b\\", text[i + 2:])
-                    if not end: break
+                    end = re.search(r"\x07|\x1b\\", text[i + 2 :])
+                    if not end:
+                        break
                     i += 2 + end.end()
                     continue
                 i += 2
                 continue
-            if ch == "\r": self.x = 0
-            elif ch == "\n": self.y = min(self.height - 1, self.y + 1)
-            elif ch == "\b": self.x = max(0, self.x - 1)
+            if ch == "\r":
+                self.x = 0
+            elif ch == "\n":
+                self.y = min(self.height - 1, self.y + 1)
+            elif ch == "\b":
+                self.x = max(0, self.x - 1)
             elif ord(ch) >= 32:
                 if self.x >= self.width:
                     self.x = 0
                     self.y = min(self.height - 1, self.y + 1)
                 if unicodedata.combining(ch):
-                    if self.x: self.cells[self.y][self.x - 1] += ch
+                    if self.x:
+                        self.cells[self.y][self.x - 1] += ch
                 else:
                     self.cells[self.y][self.x] = ch
                     self.x += 2 if unicodedata.east_asian_width(ch) in "WF" else 1
@@ -96,22 +122,39 @@ class Terminal:
 
 
 class Session:
-    def __init__(self, binary, directory, width=120, height=30, color=False, offline=True):
+    def __init__(
+        self, binary, directory, width=120, height=30, color=False, offline=True
+    ):
         self.master, self.slave = pty.openpty()
         self.original = termios.tcgetattr(self.slave)
         self.terminal = Terminal(width, height)
         self.raw = bytearray()
         self.resize(width, height, notify=False)
-        env = dict(os.environ, TERM="xterm-256color", HOME=str(directory), XDG_DATA_HOME=str(directory))
-        if color: env.pop("NO_COLOR", None)
-        else: env["NO_COLOR"] = "1"
-        self.process = subprocess.Popen([str(binary)] + (["--offline"] if offline else []),
-                                        stdin=self.slave, stdout=self.slave, stderr=self.slave, env=env)
+        env = dict(
+            os.environ,
+            TERM="xterm-256color",
+            HOME=str(directory),
+            XDG_DATA_HOME=str(directory),
+        )
+        if color:
+            env.pop("NO_COLOR", None)
+        else:
+            env["NO_COLOR"] = "1"
+        self.process = subprocess.Popen(
+            [str(binary)] + (["--offline"] if offline else []),
+            stdin=self.slave,
+            stdout=self.slave,
+            stderr=self.slave,
+            env=env,
+        )
 
     def resize(self, width, height, notify=True):
-        fcntl.ioctl(self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", height, width, 0, 0))
+        fcntl.ioctl(
+            self.slave, termios.TIOCSWINSZ, struct.pack("HHHH", height, width, 0, 0)
+        )
         self.terminal.resize(width, height)
-        if notify: self.process.send_signal(signal.SIGWINCH)
+        if notify:
+            self.process.send_signal(signal.SIGWINCH)
 
     def pump(self, duration=0.12):
         end = time.monotonic() + duration
@@ -120,14 +163,17 @@ class Session:
                 data = os.read(self.master, 65536)
                 self.raw.extend(data)
                 self.terminal.feed(data)
-                if b"\x1b[6n" in data: os.write(self.master, b"\x1b[1;1R")
+                if b"\x1b[6n" in data:
+                    os.write(self.master, b"\x1b[1;1R")
 
     def expect(self, phrase, timeout=4):
         end = time.monotonic() + timeout
         while time.monotonic() < end:
             self.pump()
-            if phrase in self.terminal.text(): return
-            if self.process.poll() is not None: break
+            if phrase in self.terminal.text():
+                return
+            if self.process.poll() is not None:
+                break
         raise AssertionError(f"Missing {phrase!r}:\n{self.terminal.text()}")
 
     def keys(self, text):
@@ -135,13 +181,19 @@ class Session:
         self.pump()
 
     def finish(self, control_c=False, terminate=False):
-        if terminate: self.process.send_signal(signal.SIGTERM)
-        else: self.keys("\x03" if control_c else "q")
+        if terminate:
+            self.process.send_signal(signal.SIGTERM)
+        else:
+            self.keys("\x03" if control_c else "q")
         self.process.wait(timeout=8)
         self.pump()
-        assert termios.tcgetattr(self.slave) == self.original, "Terminal settings not restored"
+        assert (
+            termios.tcgetattr(self.slave) == self.original
+        ), "Terminal settings not restored"
         assert b"\x1b[?1049l" in self.raw, "Alternate screen not restored"
-        assert self.process.returncode == (128 + signal.SIGTERM if terminate else 0), f"Exit failed: {self.process.returncode}"
+        assert self.process.returncode == (
+            128 + signal.SIGTERM if terminate else 0
+        ), f"Exit failed: {self.process.returncode}"
         os.close(self.master)
         os.close(self.slave)
 
@@ -154,7 +206,11 @@ class Session:
 
 
 def storage(directory):
-    base = directory / "Library" / "Application Support" if sys.platform == "darwin" else directory
+    base = (
+        directory / "Library" / "Application Support"
+        if sys.platform == "darwin"
+        else directory
+    )
     return base / "tech-news" / "news.sqlite3"
 
 
@@ -170,14 +226,33 @@ def seed(directory):
             CREATE TABLE metadata(key TEXT PRIMARY KEY,value INTEGER NOT NULL);
             PRAGMA user_version=1;
         """)
-        body = "\n\n".join(f"Paragraph {i}: Software tools keep the terminal readable. " * 4 for i in range(1, 25))
-        for i, (title, source, language) in enumerate([
+        body = "\n\n".join(
+            f"Paragraph {i}: Software tools keep the terminal readable. " * 4
+            for i in range(1, 25)
+        )
+        for i, (title, source, language) in enumerate(
+            [
                 ("First software headline", "Ars Technica", "en"),
                 ("Second security headline", "TechCrunch", "en"),
-                ("Inteligência artificial no Brasil", "Tecnoblog", "pt-BR")]):
-            db.execute("INSERT INTO stories VALUES(?,?,?,?,?,?,?,?,?,?,?)",
-                       (f"https://news.example/{i}", title, "Fixture summary: segurança e proteção.", body,
-                        source, language, now - i, now, 1, 0, 0))
+                ("Inteligência artificial no Brasil", "Tecnoblog", "pt-BR"),
+            ]
+        ):
+            db.execute(
+                "INSERT INTO stories VALUES(?,?,?,?,?,?,?,?,?,?,?)",
+                (
+                    f"https://news.example/{i}",
+                    title,
+                    "Fixture summary: segurança e proteção.",
+                    body,
+                    source,
+                    language,
+                    now - i,
+                    now,
+                    1,
+                    0,
+                    0,
+                ),
+            )
         db.execute("INSERT INTO metadata VALUES('last_refresh',?)", (now,))
 
 
@@ -198,7 +273,9 @@ def run(binary):
             session.keys("jbu")
             session.expect("Marked read")
             with sqlite3.connect(storage(directory)) as db:
-                assert db.execute("SELECT read,bookmarked FROM stories WHERE url='https://news.example/1'").fetchone() == (1, 1)
+                assert db.execute(
+                    "SELECT read,bookmarked FROM stories WHERE url='https://news.example/1'"
+                ).fetchone() == (1, 1)
             session.keys("\t")
             session.expect("> Article preview")
             session.keys("\t")
@@ -215,10 +292,14 @@ def run(binary):
             session.keys("\x1b")
             session.resize(100, 26)
             session.expect("Article preview")
-            assert "Sources & filters" not in session.terminal.text(), "Sidebar should collapse"
+            assert (
+                "Sources & filters" not in session.terminal.text()
+            ), "Sidebar should collapse"
             session.resize(70, 24)
             session.expect("Headlines (3)")
-            assert "Article preview" not in session.terminal.text(), "Narrow view should show one pane"
+            assert (
+                "Article preview" not in session.terminal.text()
+            ), "Narrow view should show one pane"
             session.keys("\r")
             session.expect("> Reader")
             session.expect("Complete feed content")
@@ -246,7 +327,9 @@ def run(binary):
             session.expect("Reset filters")
             session.keys("\r\t")
             session.expect("Headlines (3)")
-            assert not re.search(rb"\x1b\[[0-9;]*(?:38|48);[25];", session.raw), "NO_COLOR emitted color sequences"
+            assert not re.search(
+                rb"\x1b\[[0-9;]*(?:38|48);[25];", session.raw
+            ), "NO_COLOR emitted color sequences"
             session.finish()
         except BaseException:
             session.abort()
@@ -265,7 +348,9 @@ def run(binary):
             session.keys("m")
             session.expect("Second security headline")
             session.expect("Headlines (1)")
-            assert re.search(rb"\x1b\[[0-9;]*(?:38|48);[25];", session.raw), "Color palette missing"
+            assert re.search(
+                rb"\x1b\[[0-9;]*(?:38|48);[25];", session.raw
+            ), "Color palette missing"
             session.finish(control_c=True)
         except BaseException:
             session.abort()
@@ -280,7 +365,9 @@ def run(binary):
         except BaseException:
             session.abort()
             raise
-    print("PASS CLI, offline startup, navigation, flags/restart, search, filters, reader scrolling, resize, NO_COLOR, Ctrl-C/quit/SIGTERM restoration")
+    print(
+        "PASS CLI, offline startup, navigation, flags/restart, search, filters, reader scrolling, resize, NO_COLOR, Ctrl-C/quit/SIGTERM restoration"
+    )
 
 
 if __name__ == "__main__":

@@ -1,11 +1,12 @@
 #pragma once
-#include "tech_news/model.hpp"
 #include <string_view>
+
+#include "tech_news/model.hpp"
 
 namespace tech_news {
 struct ArticleText {
-  std::string text;
-  ContentKind kind = ContentKind::Summary;
+    std::string text;
+    ContentKind kind = ContentKind::Summary;
 };
 std::vector<Story> parse_feed(std::string_view xml, const Feed& feed, std::int64_t now);
 std::string html_to_text(std::string_view html);
