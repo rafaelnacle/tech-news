@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom" xml:lang="pt-BR">
+  <title>Notícias de tecnologia</title>
+  <entry><title>Inteligência artificial: atualização segura</title>
+    <link rel="self" href="https://news.example/entry.xml"/>
+    <link rel="alternate" type="text/html" href="https://news.example/ia?utm_medium=feed"/>
+    <updated>2026-09-28T11:00:00.123-03:00</updated>
+    <category term="Inteligência Artificial"/>
+    <summary type="html">&lt;p&gt;Proteção, segurança e novos computadores no Brasil.&lt;/p&gt;</summary>
+    <content type="xhtml"><div xmlns="http://www.w3.org/1999/xhtml">
+      <h2>Atualização do sistema</h2>
+      <p>Uma equipe de desenvolvimento publicou uma atualização que melhora a segurança e a eficiência do sistema. Os testes foram realizados com dados de exemplo e uma rede local controlada. Os usuários podem ler as notícias em português, guardar os artigos favoritos e consultar o conteúdo novamente sem conexão. Esta notícia é um exemplo fictício criado apenas para testar o aplicativo.</p>
+      <p>O novo programa oferece uma interface de terminal com títulos claros, navegação por teclado e contraste legível. A documentação explica como instalar as bibliotecas necessárias e configurar o diretório de dados. Nenhuma conta ou chave de acesso é exigida para consultar os feeds públicos de tecnologia. O conteúdo é apresentado em parágrafos e as mensagens informam quando apenas um resumo está disponível.</p>
+      <p>A aplicação verifica o tamanho de cada resposta e mantém os dados anteriores se uma fonte estiver indisponível. Favoritos e estado de leitura permanecem guardados depois de reiniciar. O sistema também remove sequências de controle antes de escrever texto externo no terminal.</p>
+      <ul><li>Segurança na leitura</li><li>Conteúdo disponível offline</li></ul>
+    </div></content>
+  </entry>
+</feed>

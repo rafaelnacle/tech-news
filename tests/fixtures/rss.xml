@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel><title>Fixture technology feed</title>
+    <item><title>Software &amp; security update</title><link>https://NEWS.example:443/update/?utm_source=rss&amp;id=7#top</link>
+      <pubDate>Mon, 28 Sep 2026 14:00:00 GMT</pubDate><category>Security</category>
+      <description><![CDATA[<p>A <strong>safe</strong> software summary.</p><script>UNSAFE SCRIPT</script>]]></description>
+      <content:encoded><![CDATA[<p>An excerpt from the article.</p><p>Continue reading on the publisher site.</p>]]></content:encoded>
+    </item>
+    <item><title>Duplicate update</title><link>https://news.example/update?id=7</link><pubDate>Mon, 28 Sep 2026 13:00:00 GMT</pubDate><description>Duplicate summary</description><category>Software</category></item>
+    <item><title>Hardware announced</title><link>/hardware</link><pubDate>Sun, 27 Sep 2026 10:30:00 -0300</pubDate><description>A compact computer.</description><category>Hardware</category></item>
+    <item><title>Unknown date story</title><link>https://news.example/unknown</link><pubDate>not a date</pubDate><description>Summary only.</description><category>Software</category></item>
+    <item><title>Unrelated astronomy</title><link>https://news.example/space</link><category>Science</category><description>Should be excluded.</description></item>
+    <item><title>Dangerous link</title><link>file:///etc/passwd</link><description>Should be excluded.</description></item>
+    <item><title>Credential link</title><link>https://user:password@news.example/private</link><description>Should be excluded.</description></item>
+  </channel>
+</rss>
