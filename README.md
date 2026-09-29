@@ -2,6 +2,10 @@
 
 A C++20 terminal reader for English and Brazilian Portuguese technology news, with an English interface. Browse curated RSS/Atom feeds from Ars Technica, TechCrunch, and Tecnoblog; search locally; read public article text; and keep bookmarks and read status offline.
 
+![tech-news showing source and language filters, English and Portuguese headlines, and the article reader](docs/images/tech-news.png)
+
+*Screenshot with sample stories.*
+
 The interface uses [FTXUI 7.0.3](https://github.com/ArthurSonzogni/FTXUI/releases/tag/v7.0.3), a midnight navy palette, cyan focus, and ordinary terminal characters. It follows [Microsoft's keyboard and focus guidance](https://learn.microsoft.com/en-us/windows/win32/winauto/accessibility-best-practices) through visible focus, logical Tab navigation, and text equivalents for color indicators. No special fonts, API keys, accounts, or `.env` files are required.
 
 ## Prerequisites
